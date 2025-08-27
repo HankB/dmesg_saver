@@ -30,8 +30,10 @@ fi
 
 # delay for WiFi startup
 # delay to allow 'save-dmesg.sh' to save files to /local/storage
+# 15s not enough! Making it a one shgot systemd service depending 
+# on the network would be a better option. 
 
-sleep 15
+sleep 30
 
 for i in *
 do
