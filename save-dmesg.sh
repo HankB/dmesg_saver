@@ -16,6 +16,9 @@ set -o nounset
 #
 ###########################################
 
+# delay to insure that the writable partition is mounted
+sleep 3
+
 # Check for local destination provided on the command line
 
 if [ $# -eq 0 ]
@@ -29,7 +32,7 @@ fi
 
 # move previous dmesg output to .../save
 
-mv -- *.txt save/ || true
-chmod a+rw -- save/*
+mv -- *.txt save/    || : # ignore error
+chmod a+rw -- save/* || : # ignore error
 
 dmesg -T --follow >"dmesg.$(date +%Y-%m-%d-%H%M%S).txt"
