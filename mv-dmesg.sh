@@ -8,35 +8,50 @@ set -o nounset
 
 ###########################################
 #
-# move previously saved dmesg output to a remote host
-# and delete the local copy
+# Move previously saved dmesg output to a remote host
+# and delete the local copies.
 #
-# typical usage is a crontab entry
+# Intended to run as a oneshot systemd service after network-online.target.
 #
-# "@reboot /path/to/mv-dmesg.sh /local/storage remote:/path/to/remote/storage
+# Usage:
+#   mv-dmesg.sh /local/storage remote-host:/path/to/remote/storage
+#
+# Example:
+#   mv-dmesg.sh /mnt/data/save storage-host:/mnt/dmesg/IoT/ryugu/
+#
+# Requirements:
+#   - Passwordless SSH access to the remote host
+#   - Remote destination directory must already exist
 #
 ###########################################
 
-# Check for local storage and remote storage provided on the command line
-
-if [ $# -le 1 ]
-then
-    echo "Usage: $0 /path/to/dmesg/storage remote:/remote/storage"
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 /path/to/local/storage remote-host:/path/to/remote/storage"
     exit 1
-else
-    cd "$1"
-    remote="$2"
 fi
 
-# delay for WiFi startup
-# delay to allow 'save-dmesg.sh' to save files to /local/storage
-# 15s not enough! Making it a one shgot systemd service depending 
-# on the network would be a better option. 
+local_storage="$1"
+remote="$2"
 
-sleep 30
+# Verify local storage directory exists and is accessible
+if [ ! -d "${local_storage}" ]; then
+    echo "Error: local storage directory '${local_storage}' does not exist"
+    exit 1
+fi
 
-for i in *
-do
-    echo "sending $i to $remote"
-    scp "$i" "$remote" && rm "$i"
+cd "${local_storage}"
+
+# Check for files to send — exit cleanly if none
+shopt -s nullglob
+files=( *.txt )
+shopt -u nullglob
+
+if [ ${#files[@]} -eq 0 ]; then
+    echo "No files to send in ${local_storage}"
+    exit 0
+fi
+
+for f in "${files[@]}"; do
+    echo "Sending ${f} to ${remote}"
+    scp "${f}" "${remote}" && rm "${f}"
 done
