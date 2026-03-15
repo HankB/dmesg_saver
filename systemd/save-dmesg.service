@@ -1,0 +1,34 @@
+# save-dmesg.service - systemd system unit
+#
+# Install to: /etc/systemd/system/save-dmesg.service
+#
+# This file is a Jinja2 template. Deploy via Ansible install-dmesg-saver.yml
+# which substitutes {{ username }} with the correct user at install time.
+#
+# Enable and manage with:
+#   sudo systemctl enable save-dmesg.service
+#   sudo systemctl start save-dmesg.service
+#   sudo systemctl status save-dmesg.service
+
+[Unit]
+Description=Save dmesg output to writable storage
+# Directly depend on the data partition being mounted
+After=mnt-data.mount
+Requires=mnt-data.mount
+# Must stop before filesystems are unmounted at shutdown
+Before=umount.target
+
+[Service]
+Type=simple
+User={{ username }}
+ExecStart=/usr/local/bin/save-dmesg.sh /mnt/data
+# Kill the entire process group (script + dmesg child) on stop/shutdown
+KillMode=control-group
+# Give processes a moment to flush and exit cleanly before SIGKILL
+TimeoutStopSec=10
+# Restart on failure (rotation in save-dmesg.sh handles the file safely)
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
