@@ -14,8 +14,6 @@
 Description=Move saved dmesg output to storage host
 After=network-online.target
 Wants=network-online.target
-# Run after save-dmesg has had a chance to rotate files on previous boot
-After=save-dmesg.service
 
 [Service]
 Type=oneshot
@@ -25,3 +23,4 @@ ExecStart=/usr/local/bin/mv-dmesg.sh /mnt/data/save {{ storage_host }}:/mnt/dmes
 
 [Install]
 WantedBy=multi-user.target
+
