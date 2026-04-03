@@ -18,6 +18,12 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 User={{ username }}
+
+# Wait for the host to be resolvable before starting the main service
+ExecStartPre=/bin/sh -c 'until ping -c1 {{ storage_host }} ;do sleep 1; done'
+# Increase timeout if resolution might take longer than the default 90s
+TimeoutStartSec=120 
+
 ExecStart=/usr/local/bin/mv-dmesg.sh /mnt/data/save {{ storage_host }}:/mnt/dmesg/IoT/%H
 # %H expands to the hostname of the sending host
 
