@@ -23,6 +23,10 @@ Employ two scripts.
 
 There are probably security implications WRT sending a copy of `dmesg` output to another host and these should be explored before deploying this.
 
+## 2026-04-03 Deploy
+
+I deploy this ising Ansible playbooks in a private repo at <http://oak:8080/HankB/Pi-IoT-Configuration>. It's a bit of work to move those to this repo or make my private repo public so I'll postpone effort on that unless someone wants to use this and files an issue to request that.
+
 ## 2025-08-25 Future enhancements
 
 Perhaps record various `journalctl` output instead of just `dmesg`.
