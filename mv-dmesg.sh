@@ -53,5 +53,5 @@ fi
 
 for f in "${files[@]}"; do
     echo "Sending ${f} to ${remote}"
-    scp "${f}" "${remote}" && rm "${f}"
+    scp -p "${f}" "${remote}" && rm "${f}"
 done
