@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # =============================================================================
 # rpi_repartition.sh
+# 
+# Initial coding using Claude
 #
 # Purpose:
 #   Prepare a Raspberry Pi OS (Trixie) SD card by:
 #     1. Disabling overlayfs in /boot/firmware/cmdline.txt (if enabled)
 #     2. Shrinking the root (ext4) partition
-#     3. Creating a 512KB ext4 data partition at the end of the card
-#     4. Injecting an /etc/fstab entry for /mnt/data (by UUID)
+#     3. Creating a 1024KB ext4 data partition at the end of the card
+#     4. Injecting an root cron entry to mount /mnt/data (by UUID)
 #
 # Usage:
 #   sudo ./rpi_repartition.sh <device>
@@ -28,7 +30,6 @@ set -euo pipefail
 # -----------------------------------------------------------------------------
 # Constants
 # -----------------------------------------------------------------------------
-DATA_PART_SIZE_KB=512
 DATA_PART_LABEL="data"
 DATA_MOUNT_POINT="/mnt/data"
 BOOT_FIRMWARE_SUBPATH="boot/firmware"   # relative to root partition mount
@@ -252,22 +253,16 @@ e2fsck -f -y "${ROOT_PART}" || true
 resize2fs "${ROOT_PART}"
 
 # -----------------------------------------------------------------------------
-# Step 6: Inject /etc/fstab entry on root partition
+# Step 6: Injecting an root cron entry to mount /mnt/data (by UUID)
 # -----------------------------------------------------------------------------
 info "Mounting root partition to update /etc/fstab..."
 mount "${ROOT_PART}" "${ROOT_MNT}"
 
-FSTAB_PATH="${ROOT_MNT}/etc/fstab"
-FSTAB_ENTRY="UUID=${DATA_UUID}  ${DATA_MOUNT_POINT}  ext4  defaults,noatime  0  2"
+CRON_FILE="${ROOT_MNT}etc/cron.d/mount_data"
+info "Creating cron entry to mount /mnt/data in ${CRON_FILE}"
 
-if grep -q "${DATA_MOUNT_POINT}" "${FSTAB_PATH}"; then
-    warn "/etc/fstab already has an entry for ${DATA_MOUNT_POINT}. Skipping."
-else
-    info "Adding ${DATA_MOUNT_POINT} to /etc/fstab..."
-    echo "" >> "${FSTAB_PATH}"
-    echo "# Data partition for dmesg capture (added by rpi_repartition.sh)" >> "${FSTAB_PATH}"
-    echo "${FSTAB_ENTRY}" >> "${FSTAB_PATH}"
-fi
+echo "$@reboot /bin/mount -t ext4  UUID=${DATA_UUID}  ${DATA_MOUNT_POINT}" > "${CRON_FILE}"
+chmod 644 "${CRON_FILE}"
 
 # Create the mount point directory on the root filesystem
 MOUNT_DIR="${ROOT_MNT}${DATA_MOUNT_POINT}"
