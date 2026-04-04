@@ -258,7 +258,7 @@ resize2fs "${ROOT_PART}"
 info "Mounting root partition to update /etc/fstab..."
 mount "${ROOT_PART}" "${ROOT_MNT}"
 
-CRON_FILE="${ROOT_MNT}etc/cron.d/mount_data"
+CRON_FILE="${ROOT_MNT}/etc/cron.d/mount_data"
 info "Creating cron entry to mount /mnt/data in ${CRON_FILE}"
 
 echo "$@reboot /bin/mount -t ext4  UUID=${DATA_UUID}  ${DATA_MOUNT_POINT}" > "${CRON_FILE}"
