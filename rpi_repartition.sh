@@ -261,14 +261,15 @@ mount "${ROOT_PART}" "${ROOT_MNT}"
 CRON_FILE="${ROOT_MNT}/etc/cron.d/mount_data"
 info "Creating cron entry to mount /mnt/data in ${CRON_FILE}"
 
-echo "$@reboot /bin/mount -t ext4  UUID=${DATA_UUID}  ${DATA_MOUNT_POINT}" > "${CRON_FILE}"
-chmod 644 "${CRON_FILE}"
+echo "@reboot root /bin/mount -t ext4  UUID=${DATA_UUID}  ${DATA_MOUNT_POINT}" > "${CRON_FILE}"
+echo "chmod 644 ${CRON_FILE}" >> "${CRON_FILE}"
 
 # Create the mount point directory on the root filesystem
 MOUNT_DIR="${ROOT_MNT}${DATA_MOUNT_POINT}"
 if [[ ! -d "${MOUNT_DIR}" ]]; then
     info "Creating mount point directory ${DATA_MOUNT_POINT} on root fs..."
     mkdir -p "${MOUNT_DIR}"
+
 fi
 
 info "Unmounting root partition..."
