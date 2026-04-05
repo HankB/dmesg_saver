@@ -127,6 +127,12 @@
         name: save-dmesg.service
         enabled: yes
 
+    - name: Ensure systemd-time-wait-sync is running and enabled
+      ansible.builtin.systemd_service:
+        name: systemd-time-wait-sync.service
+        state: started
+        enabled: yes
+
     - name: ensure ~/.ssh directory exists
       become: no
       file:
