@@ -12,6 +12,11 @@ Employ two scripts.
 
 * One that invokes `dmesg -T --follow` to a disk file after "saving" the previous record to a safe space.
 * Another that copies the saved files to another host and then deletes the local copy.
+* Provide Ansible playbook(s) to install Systemd units that invoke and coordinate the scripts.
+
+## Status
+
+* 2026-04-05 `rpi_repartition.sh` worked once - ship it!
 
 ## 2025-08-25 Requirements
 
@@ -25,7 +30,7 @@ There are probably security implications WRT sending a copy of `dmesg` output to
 
 ## 2026-04-03 Deploy
 
-I deploy this ising Ansible playbooks in a private repo at <http://oak:8080/HankB/Pi-IoT-Configuration>. It's a bit of work to move those to this repo or make my private repo public so I'll postpone effort on that unless someone wants to use this and files an issue to request that.
+I deploy this ising Ansible playbooks in a private repo at <http://oak:8080/HankB/Pi-IoT-Configuration>. It's a bit of work to move those to this repo or make my private repo public so I'll postpone effort on that unless someone wants to use this and files an issue to request that. Check that. I'm planning to move the relevant playbooks to this repo to provide a complete package.
 
 ## 2025-08-25 Future enhancements
 
