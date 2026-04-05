@@ -1,0 +1,12 @@
+---
+
+# Execute following first boot
+# 
+# * update/upgrade (using post-boot.yml)
+#
+
+- name: prepare and customize target
+  hosts: all
+
+  tasks:
+  - include_tasks: install-dmesg-saver.yml
