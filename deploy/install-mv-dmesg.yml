@@ -32,6 +32,15 @@
       set_fact:
         target_user: "{{ connecting_user.stdout }}"
 
+    - name: set ownership of /mnt/data to connecting user
+      become: yes
+      file:
+        path: /mnt/data
+        state: directory
+        owner: "{{ connecting_user.stdout }}"
+        group: "{{ connecting_user.stdout }}"
+        recurse: yes
+
     - name: clone dmesg_saver repo to /tmp
       become: no
       git:
@@ -45,6 +54,14 @@
       copy:
         src: /tmp/dmesg_saver/mv-dmesg.sh
         dest: /usr/local/bin/mv-dmesg.sh
+        mode: '0755'
+        remote_src: yes
+
+    - name: install save-dmesg.sh to /usr/local/bin
+      become: yes
+      copy:
+        src: /tmp/dmesg_saver/save-dmesg.sh
+        dest: /usr/local/bin/save-dmesg.sh
         mode: '0755'
         remote_src: yes
 
@@ -63,6 +80,13 @@
         regexp: '{% raw %}{{ username }}{% endraw %}'
         replace: "{{ target_user }}"
 
+    - name: substitute username in save-dmesg.service template
+      become: no
+      replace:
+        path: /tmp/dmesg_saver/systemd/save-dmesg.service
+        regexp: '{% raw %}{{ username }}{% endraw %}'
+        replace: "{{ connecting_user.stdout }}"
+
     - name: substitute storage_host in mv-dmesg.service template
       become: no
       replace:
@@ -78,6 +102,14 @@
         mode: '0644'
         remote_src: yes
 
+    - name: install save-dmesg.service unit file
+      become: yes
+      copy:
+        src: /tmp/dmesg_saver/systemd/save-dmesg.service
+        dest: /etc/systemd/system/save-dmesg.service
+        mode: '0644'
+        remote_src: yes
+
     - name: reload systemd daemon
       become: yes
       systemd:
@@ -87,6 +119,12 @@
       become: yes
       systemd:
         name: mv-dmesg.service
+        enabled: yes
+
+    - name: enable save-dmesg service
+      become: yes
+      systemd:
+        name: save-dmesg.service
         enabled: yes
 
     - name: ensure ~/.ssh directory exists
