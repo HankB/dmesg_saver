@@ -15,6 +15,10 @@ Description=Move saved dmesg output to storage host
 After=network-online.target
 Wants=network-online.target
 
+# Wait for save-dmesg.sh to signal readiness.
+After=save-dmesg.service
+Requires=save-dmesg.service
+
 [Service]
 Type=oneshot
 User={{ username }}

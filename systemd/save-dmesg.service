@@ -24,7 +24,7 @@ After=time-sync.target
 Wants=time-sync.target
 
 [Service]
-Type=simple
+Type=notify
 User={{ username }}
 ExecStart=/usr/local/bin/save-dmesg.sh /mnt/data
 # Kill the entire process group (script + dmesg child) on stop/shutdown
