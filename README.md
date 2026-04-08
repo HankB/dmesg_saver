@@ -16,6 +16,7 @@ Employ two scripts.
 
 ## Status
 
+* 2026-04-08 Systemd units and install playbooks remain a work in progress"
 * 2026-04-05 `rpi_repartition.sh` worked once - ship it!
 
 ## 2025-08-25 Requirements

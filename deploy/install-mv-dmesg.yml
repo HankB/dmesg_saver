@@ -188,20 +188,20 @@
   hosts: "{{ storage_host }}"
   tasks:
 
+    - name: get connecting username on storage host
+      become: no
+      command: id -un
+      register: storage_connecting_user
+      changed_when: false
+
     - name: create destination directory for sending host
       become: yes
       file:
         path: "/mnt/dmesg/IoT/{{ hostvars[target_host]['ansible_hostname'] }}"
         state: directory
         mode: '0755'
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}"
-
-    - name: get connecting username on storage host
-      become: no
-      command: id -un
-      register: storage_connecting_user
-      changed_when: false
+        owner: "{{ storage_connecting_user }}"
+        group: "{{ storage_connecting_user }}"
 
     - name: ensure ~/.ssh exists on storage host
       become: no
