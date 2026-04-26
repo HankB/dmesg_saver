@@ -34,6 +34,5 @@ fi
 
 mv -- *.txt save/    || : # ignore error
 chmod a+rw -- save/* || : # ignore error
-systemd-notify --ready # signal ready for mv-dmesg.sh
 
 dmesg -T --follow >"dmesg.$(date +%Y-%m-%d-%H%M%S).txt"
