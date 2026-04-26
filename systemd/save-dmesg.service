@@ -19,7 +19,9 @@ Requires=mnt-data.mount
 Before=umount.target
 
 [Service]
-Type=simple
+Type=notify
+NotifyAccess=all
+
 User={{ username }}
 ExecStart=/usr/local/bin/save-dmesg.sh /mnt/data
 # Kill the entire process group (script + dmesg child) on stop/shutdown
