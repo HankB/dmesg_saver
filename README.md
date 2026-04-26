@@ -58,8 +58,9 @@ cd deploy
 
 ### install scripts and Systemd units
 
-1. Insure that the host that runs the Ansible playubooks has passwordless SSH configured for both the target host and the storage host.
-2. Execute the ansible playbook:
+1. Insure that the host that runs the Ansible playbooks has passwordless SSH configured for both the target host and the storage host and that both hosts are in the `inventory` file.
+2. Install `git` on the target host.
+3. Execute the ansible playbook:
 
 ```text
 target=<target-host-name>
