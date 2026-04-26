@@ -18,14 +18,8 @@ Requires=mnt-data.mount
 # Must stop before filesystems are unmounted at shutdown
 Before=umount.target
 
-# Make sure we have time synchronized so the dmesg stuff
-# has the correct time.
-After=time-sync.target
-Wants=time-sync.target
-
 [Service]
-Type=notify
-NotifyAccess=all
+Type=simple
 User={{ username }}
 ExecStart=/usr/local/bin/save-dmesg.sh /mnt/data
 # Kill the entire process group (script + dmesg child) on stop/shutdown
