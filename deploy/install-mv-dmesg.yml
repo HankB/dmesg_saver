@@ -200,8 +200,8 @@
         path: "/mnt/dmesg/IoT/{{ hostvars[target_host]['ansible_hostname'] }}"
         state: directory
         mode: '0755'
-        owner: "{{ storage_connecting_user }}"
-        group: "{{ storage_connecting_user }}"
+        owner: "{{ storage_connecting_user.stdout }}"
+        group: "{{ storage_connecting_user.stdout }}"
 
     - name: ensure ~/.ssh exists on storage host
       become: no
