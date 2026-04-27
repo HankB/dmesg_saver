@@ -206,7 +206,7 @@ DISK_SIZE_MB=$(parted -s "${DEVICE}" unit MiB print \
     | awk '/^Disk \/dev/ {gsub(/MiB/,""); print $3}')
 info "Total disk size: ${DISK_SIZE_MB} MiB"
 
-DATA_PART_SIZE_MB=1   # 512KB rounds up to 1 MiB as parted minimum alignment unit
+DATA_PART_SIZE_MB=10   # 512KB rounds up to 1 MiB as parted minimum alignment unit
 DATA_START_MB=$(( DISK_SIZE_MB - DATA_PART_SIZE_MB ))
 ROOT_END_MB=${DATA_START_MB}
 
@@ -255,6 +255,9 @@ resize2fs "${ROOT_PART}"
 # -----------------------------------------------------------------------------
 # Step 6: Create the mount point directory on the root filesystem
 # -----------------------------------------------------------------------------
+
+info "Mounting root partition to update /etc/fstab..."
+mount "${ROOT_PART}" "${ROOT_MNT}"
 
 MOUNT_DIR="${ROOT_MNT}${DATA_MOUNT_POINT}"
 if [[ ! -d "${MOUNT_DIR}" ]]; then
