@@ -253,17 +253,9 @@ e2fsck -f -y "${ROOT_PART}" || true
 resize2fs "${ROOT_PART}"
 
 # -----------------------------------------------------------------------------
-# Step 6: Injecting an root cron entry to mount /mnt/data (by UUID)
+# Step 6: Create the mount point directory on the root filesystem
 # -----------------------------------------------------------------------------
-info "Mounting root partition to update /etc/fstab..."
-mount "${ROOT_PART}" "${ROOT_MNT}"
 
-CRON_FILE="${ROOT_MNT}/etc/cron.d/mount_mnt_data"
-info "Creating cron entry to mount /mnt/data in ${CRON_FILE}"
-
-echo "@reboot root /bin/mount -t ext4  UUID=${DATA_UUID}  ${DATA_MOUNT_POINT} && /bin/chmod a+rwx ${DATA_MOUNT_POINT}"  > "${CRON_FILE}" 
-
-# Create the mount point directory on the root filesystem
 MOUNT_DIR="${ROOT_MNT}${DATA_MOUNT_POINT}"
 if [[ ! -d "${MOUNT_DIR}" ]]; then
     info "Creating mount point directory ${DATA_MOUNT_POINT} on root fs..."
