@@ -21,8 +21,9 @@
 - name: Configure target host
   hosts: "{{ target_host }}"
   become: yes
-  
+    
   roles:
+      - user_setup
       - data_mount
       - dmesg_saver
 
@@ -60,4 +61,4 @@
       authorized_key:
         user: "{{ storage_connecting_user.stdout }}"
         state: present
-        key: "{{ hostvars[target_host]['sending_host_pubkey']['content'] | b64decode }}"
+        key: "{{ hostvars[target_host].sending_host_pubkey.stdout }}"
