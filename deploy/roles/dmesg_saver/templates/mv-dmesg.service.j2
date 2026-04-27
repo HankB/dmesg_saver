@@ -9,7 +9,7 @@ Type=oneshot
 User={{ ansible_user_id }}
 
 # Wait for the host to respond before starting
-ExecStartPre=/bin/sh -c 'until ping -c1 {{ storage_host }} >/dev/null 2>&1; do sleep 1; done'
+until getent hosts {{ storage_host }} >/dev/null 2>&1 && ping -c1 {{ storage_host }} >/dev/null 2>&1; do sleep 1; done
 TimeoutStartSec=120
 
 ExecStart=/usr/local/bin/mv-dmesg.sh /mnt/data/save {{ storage_host }}:/mnt/dmesg/IoT/%H

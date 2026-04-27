@@ -1,0 +1,35 @@
+- name: Install save-dmesg.sh
+  copy:
+    src: save-dmesg.sh
+    dest: /usr/local/bin/save-dmesg.sh
+    mode: '0755'
+
+- name: Install mv-dmesg.sh
+  copy:
+    src: mv-dmesg.sh
+    dest: /usr/local/bin/mv-dmesg.sh
+    mode: '0755'
+
+- name: Install save-dmesg.service
+  template:
+    src: save-dmesg.service.j2
+    dest: /etc/systemd/system/save-dmesg.service
+    mode: '0644'
+
+- name: Install mv-dmesg.service
+  template:
+    src: mv-dmesg.service.j2
+    dest: /etc/systemd/system/mv-dmesg.service
+    mode: '0644'
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: Enable services
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+  loop:
+    - save-dmesg.service
+    - mv-dmesg.service
