@@ -23,7 +23,8 @@
   become: yes
   
   roles:
-    - dmesg_saver
+      - data_mount
+      - dmesg_saver
 
 # =============================================================================
 # Play 2: Prepare the storage host

@@ -1,0 +1,21 @@
+- name: Install mount unit
+  copy:
+    src: mnt-data.mount
+    dest: /etc/systemd/system/mnt-data.mount
+    mode: '0644'
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start mount
+  systemd:
+    name: mnt-data.mount
+    enabled: yes
+    state: started
+
+- name: Verify mount exists
+  command: mountpoint -q /mnt/data
+  register: mount_check
+  failed_when: mount_check.rc != 0
+  changed_when: false
