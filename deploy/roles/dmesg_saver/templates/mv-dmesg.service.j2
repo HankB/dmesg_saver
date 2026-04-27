@@ -1,0 +1,36 @@
+# mv-dmesg.service - systemd system unit
+#
+# Install to: /etc/systemd/system/mv-dmesg.service
+#
+# This file is a Jinja2 template. Deploy via Ansible install-dmesg-saver.yml
+# which substitutes {{ username }} and {{ storage_host }} at install time.
+#
+# Enable and manage with:
+#   sudo systemctl enable mv-dmesg.service
+#   sudo systemctl start mv-dmesg.service
+#   sudo systemctl status mv-dmesg.service
+
+[Unit]
+Description=Move saved dmesg output to storage host
+After=network-online.target
+Wants=network-online.target
+
+# Wait for save-dmesg.sh to signal readiness.
+After=save-dmesg.service
+Requires=save-dmesg.service
+
+[Service]
+Type=oneshot
+User={{ username }}
+
+# Wait for the host to be resolvable before starting the main service
+ExecStartPre=/bin/sh -c 'until ping -c1 {{ storage_host }} ;do sleep 1; done'
+# Increase timeout if resolution might take longer than the default 90s
+TimeoutStartSec=120 
+
+ExecStart=/usr/local/bin/mv-dmesg.sh /mnt/data/save {{ storage_host }}:/mnt/dmesg/IoT/%H
+# %H expands to the hostname of the sending host
+
+[Install]
+WantedBy=multi-user.target
+
