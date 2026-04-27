@@ -18,6 +18,7 @@ Employ two scripts.
 
 ## Status
 
+* 2026-04-27 in the midst of a massive rewrite/reorg - incomplete and may not be ready use.
 * 2026-04-08 Systemd units and install playbooks remain a work in progress.
 * 2026-04-05 `rpi_repartition.sh` worked once - ship it!
 
