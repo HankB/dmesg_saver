@@ -32,33 +32,39 @@
 # =============================================================================
 - name: Prepare storage host to receive dmesg files
   hosts: "{{ storage_host }}"
+  become: yes
+
+  vars:
+    storage_user: "{{ ansible_user | default(lookup('env','USER')) }}"
+
   tasks:
 
-    - name: get connecting username on storage host
-      become: no
-      command: id -un
-      register: storage_connecting_user
-      changed_when: false
-
-    - name: create destination directory for sending host
-      become: yes
+    - name: Ensure base directory exists
       file:
-        path: "/mnt/dmesg/IoT/{{ hostvars[target_host]['ansible_hostname'] }}"
+        path: /mnt/dmesg/IoT
         state: directory
         mode: '0755'
-        owner: "{{ storage_connecting_user.stdout }}"
-        group: "{{ storage_connecting_user.stdout }}"
 
-    - name: ensure ~/.ssh exists on storage host
+    - name: Create destination directory for sending host
+      file:
+        path: "/mnt/dmesg/IoT/{{ hostvars[target_host].ansible_hostname | default(target_host) }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ storage_user }}"
+        group: "{{ storage_user }}"
+
+    - name: Ensure ~/.ssh exists on storage host
       become: no
       file:
-        path: "/home/{{ storage_connecting_user.stdout }}/.ssh"
+        path: "/home/{{ storage_user }}/.ssh"
         state: directory
         mode: '0700'
+        owner: "{{ storage_user }}"
+        group: "{{ storage_user }}"
 
-    - name: authorize sending host public key on storage host
+    - name: Authorize sending host public key
       become: no
       authorized_key:
-        user: "{{ storage_connecting_user.stdout }}"
+        user: "{{ storage_user }}"
         state: present
         key: "{{ hostvars[target_host].sending_host_pubkey.stdout }}"
