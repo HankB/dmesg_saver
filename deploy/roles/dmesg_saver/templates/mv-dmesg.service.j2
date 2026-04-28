@@ -6,7 +6,7 @@ Requires=save-dmesg.service
 
 [Service]
 Type=oneshot
-User={{ ansible_user_id }}
+User={{ target_user }}
 
 # Wait for the host to respond before starting
 until getent hosts {{ storage_host }} >/dev/null 2>&1 && ping -c1 {{ storage_host }} >/dev/null 2>&1; do sleep 1; done

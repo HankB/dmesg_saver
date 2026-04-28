@@ -7,7 +7,7 @@ Before=umount.target
 [Service]
 Type=notify
 NotifyAccess=all
-User={{ ansible_user_id }}
+User={{ target_user }}
 
 ExecStart=/usr/local/bin/save-dmesg.sh /mnt/data
 KillMode=control-group
