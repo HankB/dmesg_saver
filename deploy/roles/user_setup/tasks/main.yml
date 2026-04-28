@@ -1,38 +1,41 @@
 - name: Ensure ~/.ssh exists
+  become: no
   file:
-    path: "/home/{{ ansible_user_id }}/.ssh"
+    path: "/home/{{ target_user }}/.ssh"
     state: directory
     mode: '0700'
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
 
 - name: Generate SSH key pair if not present
+  become: no
   command: >
     ssh-keygen -t rsa -b 4096
-    -C "{{ ansible_user_id }}@{{ ansible_hostname }}"
-    -f "/home/{{ ansible_user_id }}/.ssh/id_rsa"
+    -C "{{ target_user }}@{{ ansible_hostname }}"
+    -f "/home/{{ target_user }}/.ssh/id_rsa"
     -N ""
   args:
-    creates: "/home/{{ ansible_user_id }}/.ssh/id_rsa"
+    creates: "/home/{{ target_user }}/.ssh/id_rsa"
 
 - name: Check if storage host key already in known_hosts
+  become: no
   command: >
     ssh-keygen -F {{ storage_host }}
-    -f "/home/{{ ansible_user_id }}/.ssh/known_hosts"
+    -f "/home/{{ target_user }}/.ssh/known_hosts"
   register: known_hosts_check
   changed_when: false
   failed_when: false
 
 - name: Add storage host to known_hosts
+  become: no
   shell: >
     ssh-keyscan -H {{ storage_host }}
-    >> "/home/{{ ansible_user_id }}/.ssh/known_hosts"
+    >> "/home/{{ target_user }}/.ssh/known_hosts"
   args:
     executable: /bin/bash
   when: known_hosts_check.rc != 0
   changed_when: true
 
 - name: Read public key
-  command: cat /home/{{ ansible_user_id }}/.ssh/id_rsa.pub
+  become: no
+  command: cat "/home/{{ target_user }}/.ssh/id_rsa.pub"
   register: sending_host_pubkey
   changed_when: false
