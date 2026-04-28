@@ -8,6 +8,7 @@ This unit waits for NTP time sync before it starts recording so that the timesta
 
 ```text
 systemctl status save-dmesg.service
+journalctl -b -u save-dmesg.service
 systemctl status systemd-time-wait-sync.service
 ```
 
