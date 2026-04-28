@@ -1,0 +1,29 @@
+    - name: Ensure base directory exists
+      file:
+        path: /mnt/dmesg/IoT
+        state: directory
+        mode: '0755'
+
+    - name: Create destination directory for sending host
+      file:
+        path: "/mnt/dmesg/IoT/{{ hostvars[target_host].ansible_hostname | default(target_host) }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ storage_user }}"
+        group: "{{ storage_user }}"
+
+    - name: Ensure ~/.ssh exists on storage host
+      become: no
+      file:
+        path: "/home/{{ storage_user }}/.ssh"
+        state: directory
+        mode: '0700'
+        owner: "{{ storage_user }}"
+        group: "{{ storage_user }}"
+
+    - name: Authorize sending host public key
+      become: no
+      authorized_key:
+        user: "{{ storage_user }}"
+        state: present
+        key: "{{ hostvars[target_host].sending_host_pubkey.stdout }}"
