@@ -4,9 +4,17 @@ Save dmesg output to another host.
 
 NB: This is heavily slanted toward Raspberry Pis running RPiOS. It can probably be used on other hosts and S/W.
 
+## 2026-04-28 AI/LLM warning
+
+If you object to the use of LLMs for S/W development, this effort is not for you. I used Claude to assist with `rpi_repartition.sh` and initial efforts with the Ansible playbooks. Continuing development with the playbooks was done with ChatGPT.
+
+* I used the web page for both of these and am on the "free" plan for both. At no time did either of the LLMs have direct access to my files on my local host. At one point I asked Claude to view files in this Github repo but it was unable to due to rate limiting.
+* I provided specific instructions for what I wanted to do. IMO this is not vibe coded but rather assisted with syntax and options. `rpi_repartition.sh` was significantly improved over what I would have written (and have written in other contexts.) ChatGPT led me to more sophisticated usage of Ansible than I had previously done (roles, templats.) ChatGPT also provided useful suggestions to help solve some issues I had encountered. (Coordinating mounts with Systemd by using mount units vs. cron entries.)
+* I can't evaluate whether this saved me time or not, but I suspect it did. ChatGPT provided a rationale for all of its suggestions along with alternative solutions. Those helped me to learn but perhaps not as thoroughly as if I had to work out all of these things on my own (and with the helpo of web search.) Overall, I'm satisfied with my decision to leverage Claude and ChatGPT.
+
 ## 2025-08-25 Motivation
 
-Assist debugging by saving a copy of `dmesg -T --follow` to a disk file and then copy it to another host for viewing (and to prevent filling the disk on "small" devices.) This is driven by Raspberry Pis that seem to drop off WiFi for no obvious reason.
+Assist debugging by saving a copy of `dmesg -T --follow` to a disk file and then copy it to another host for viewing (and to prevent filling the disk on "small" devices.) This need is driven by headless Raspberry Pis that seem to drop off WiFi for no obvious reason.
 
 ## 2025-08-25 Plan
 
@@ -40,14 +48,14 @@ There are probably security implications WRT sending a copy of `dmesg` output to
 
 ## 2026-04-03 Deploy
 
-I deploy this using Ansible playbooks in a private repo at <http://oak:8080/HankB/Pi-IoT-Configuration>. It's a bit of work to move those to this repo or make my private repo public so I'll postpone effort on that unless someone wants to use this and files an issue to request that. Check that. I'm planning to move the relevant playbooks to this repo to provide a complete package.
+There are more or less two steps to deploy this and they are described below in the context of a new install. For an existing RPiOS install, it is necessary to unwind `ovcerlayfs` if employed before proceeding.
 
 ### Repartitioning
 
-1. Image card using `rpi-imager`
+1. Image card using `rpi-imager` (on a "development host")
 2. Perform any pre-boot customization.
 3. Put card in target host and boot to perform in host initialization (including expanding the root filesystem.)
-4. Stop target host, remove card and put in a host for further offline operations.
+4. Stop target host, remove card and put in a development host for further operations.
 5. Run the repartitioning script.
 
 ```text
@@ -62,12 +70,13 @@ cd deploy
 
 1. Insure that the host that runs the Ansible playbooks has passwordless SSH configured for both the target host and the storage host and that both hosts are in the `inventory` file.
 2. Install `git` on the target host.
-3. Execute the ansible playbook:
+3. Insure that both target host (the one saving `dmesg` output) and storage host (where the saved output gets sent) are in the `inventory` file.
+4. Execute the ansible playbook:
 
 ```text
 target=<target-host-name>
 storage=<storage-host-name>
-ansible-playbook install-mv-dmesg.yml -i inventory -b -K \
+ansible-playbook install-dmesg-saver.yml -i inventory -b -K \
     --extra-vars "target_host=${target} storage_host=${storage}"
 ```
 
@@ -78,23 +87,4 @@ Perhaps record various `journalctl` output instead of just `dmesg`.
 ## 2025-08-25 Errata
 
 * On RpiOS `dmesg` does not require `root` so this can all be run as a normal user.
-
-
-## Crude merge from deploy/README.md
-
-# deploy dmesg_saver
-
-## Overview
-
-* Provide writable storage to hold the copy of `dmesg` output until the next boot. If this is going to be used on a Raspberry Pi that employs `overlayfs` the script `rpi_repartition.sh` can prepare this with the card available on a host that has not booted from it. Otherwise the user can provide a writable directory `/mnt/data` that is writable for the user running the scripts.
-* Once prepared, run the ansible playbook(s) that
-  * install the scripts
-  * install Systemd units to coordinate and execute the scripts.
-
-## `rpi_repartition.sh`
-
-This script requires an argument naming the (unmounted) device on which the writable data partition will be created. It also creates the mount point and adds a cron entry to mount the data partition at boot. (If the partition is mounted using an entry in `/etc/fstab` and the host employs `overlayfs`, it will also be mounted using `overlayfs` and the `dmesg` record would not be preserved through reboot.)
-
-```text
-./rpi_repartition.sh /dev/somedevice
-```
+* On RPiOS when the `overalyfs` is employed, any other filesystems listed in `/etc/fstab` will also be mounted using `overalyfs`. This will cause the saved file to not be available following reboot. A cron entry to mount the filesystem does not coordinate with Systemd. A Systemd mount unit will mount the filesystem and the unit that writes to that can then wait for that before proceeding.
