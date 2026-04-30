@@ -27,3 +27,21 @@
         user: "{{ storage_user }}"
         state: present
         key: "{{ hostvars[target_host].sending_host_pubkey.stdout }}"
+
+    - name: Ensure base directory exists
+      file:
+        path: /mnt/dmesg/IoT
+        state: directory
+    
+    - name: Ensure host-specific directory exists
+      file:
+        path: "/mnt/dmesg/IoT/{{ hostvars[target_host].ansible_hostname | default(target_host) }}"
+        state: directory
+    
+    - name: Enforce ownership on storage directories
+      become: true
+      file:
+        path: /mnt/dmesg
+        owner: "{{ storage_user }}"
+        group: "{{ storage_user }}"
+        recurse: yes
