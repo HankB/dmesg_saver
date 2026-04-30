@@ -1,11 +1,11 @@
 ---
-# install-mv-dmesg.yml
+# install-dmesg-saver.yml
 #
 # Install the mv-dmesg script and systemd service on the sending host, and
 # prepare the storage host to receive dmesg files.
 #
 # Usage:
-#   ansible-playbook install-mv-dmesg.yml -i inventory -b -K \
+#   ansible-playbook install-dmesg-saver.yml -i inventory -b -K \
 #       --extra-vars "target_host=ryugu storage_host=<hostname>"
 #
 # Prerequisites:
