@@ -19,4 +19,3 @@ This unit waits for `save-dmesg.service` to `notify` that the previous record ha
 ```text
 systemctl status mv-dmesg.service
 ```
-
