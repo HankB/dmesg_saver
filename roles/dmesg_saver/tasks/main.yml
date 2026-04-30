@@ -33,3 +33,21 @@
   loop:
     - save-dmesg.service
     - mv-dmesg.service
+
+- name: Ensure /mnt/data exists
+  file:
+    path: /mnt/data
+    state: directory
+
+- name: Ensure /mnt/data/save exists
+  file:
+    path: /mnt/data/save
+    state: directory
+
+- name: Enforce ownership on data directories
+  become: yes
+  file:
+    path: /mnt/data
+    owner: "{{ data_owner }}"
+    group: "{{ data_group }}"
+    recurse: yes
