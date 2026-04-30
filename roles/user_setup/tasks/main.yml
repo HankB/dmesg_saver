@@ -24,7 +24,9 @@
   changed_when: false
   failed_when: false
 
-- name: Add storage host to known_hosts
+# Storage host may be unreachable (different VLAN/firewalled).
+# This is best-effort only; failure is acceptable.
+- name: Add storage host to known_hosts (best effort)
   become: no
   shell: >
     ssh-keyscan -H {{ storage_host }}
@@ -33,7 +35,8 @@
     executable: /bin/bash
   when: known_hosts_check.rc != 0
   changed_when: true
-
+  failed_when: false
+  
 - name: Read public key
   become: no
   command: cat "/home/{{ target_user }}/.ssh/id_rsa.pub"
