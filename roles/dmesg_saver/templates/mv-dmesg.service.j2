@@ -9,8 +9,8 @@ Type=oneshot
 User={{ target_user }}
 
 # Wait for the host to respond before starting
-until getent hosts {{ storage_host }} >/dev/null 2>&1 && ping -c1 {{ storage_host }} >/dev/null 2>&1; do sleep 1; done
-TimeoutStartSec=120
+ExecStartPre=/bin/sh -c 'until getent hosts {{ storage_host }} >/dev/null 2>&1 && ping -c1 {{ storage_host }} >/dev/null 2>&1; do sleep 1; done'
+TimeoutStartSec=300
 
 ExecStart=/usr/local/bin/mv-dmesg.sh /mnt/data/save {{ storage_host }}:/mnt/dmesg/IoT/%H
 

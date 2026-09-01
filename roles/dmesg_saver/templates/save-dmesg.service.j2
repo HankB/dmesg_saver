@@ -1,13 +1,12 @@
 [Unit]
 Description=Save dmesg output to writable storage
-After=mnt-data.mount
-Requires=mnt-data.mount
+RequiresMountsFor=/mnt/data
 Before=umount.target
 
 [Service]
 Type=notify
 NotifyAccess=all
-User={{ target_user }}
+User=root
 
 ExecStart=/usr/local/bin/save-dmesg.sh /mnt/data
 KillMode=control-group
